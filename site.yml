@@ -1,0 +1,49 @@
+--- 
+- hosts: all 
+
+  vars:
+    weechat_client_settings:  # weechat.conf
+      - section: bar
+        settings:
+            - status.items: "[time],buffer_number+: +buffer_name,[lag],competion,scroll"
+
+    weechat_irc_settings:   # irc.conf
+      - section: look
+        settings: 
+          - server_buffer: independent                  # default (merge_with_core) 
+
+    weechat_plugin_settings:  # {default} plugin.conf 
+      - plugin: buflist
+        settings:
+          - section: format
+            setting:
+              number: ""
+
+    weechat_irc_servers:
+      - server_name: Freenode
+        settings: 
+        - addresses: "chat.freenode.net/7000"
+        - ssl: on
+        - username: "sferich888"
+        - realname: "Eric Rich"
+        - nicks: "sferich888"
+        - autoconnect: on
+        - command: "/msg NickServ Identify wfang888"
+        - autojoin: "#openshift"
+
+    copr_repos: 
+#    - mcepl/vscode
+#    - ivoarch/gnome-shell-extension-tilix-dropdown
+#    - rmonk/signal
+
+    packages: 
+    - vim
+    - git
+    - weechat 
+#    - vscode     ## Uses mcepl/vscode (copr repo) 
+
+
+  roles:
+  - role: corp_repos
+  - role: packages
+  - role: weechat

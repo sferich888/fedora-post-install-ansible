@@ -1,0 +1,64 @@
+--- 
+- set_fact: 
+    irc_client_conf_path: "{{ ansible_env.HOME }}/.weechat/wechat.conf" 
+- set_fact: 
+    irc_conf_path: "{{ ansible_env.HOME }}/.weechat/irc.conf" 
+- set_fact: 
+    irc_trigger_path: "{{ ansible_env.HOME }}/.weechat/trigger.conf" 
+
+- name: Set Default Local Hostname
+  ini_file: 
+    path: "{{ irc_conf_path }}"
+    section: server_default
+    option: local_hostname
+    value: "{{ ansible_nodename }}"
+
+- name: Set Weechat Client Config Settings
+  ini_file: 
+    path: "{{ irc_client_conf_path }}"
+    section: "{{ item.0.section }}"
+    option: "{{ item.1.keys()[0] }}"
+    value: '"{{ item.1.values()[0] }}"'
+  with_subelements: 
+    - "{{ weechat_client_settings }}"
+    - settings
+
+- name: Set Weechat IRC Settings
+  ini_file: 
+    path: "{{ irc_conf_path }}"
+    section: "{{ item.0.section }}"
+    option: "{{ item.1.keys()[0] }}"
+    value: '"{{ item.1.values()[0] }}"'
+  with_subelements: 
+    - "{{ weechat_irc_settings }}"
+    - settings
+
+- name: Set Weechat IRC Settings
+  ini_file: 
+    path: "{{ irc_trigger_path }}"
+    section: "{{ item.0.section }}"
+    option: "{{ item.1.keys()[0] }}"
+    value: '"{{ item.1.values()[0] }}"'
+  with_subelements: 
+    - "{{ weechat_trigger_settings }}"
+    - settings
+
+- name: Set Weechat Plugin Settings
+  ini_file: 
+    path: "{{ ansible_env.HOME }}/.weechat/{{ item.0.plugin }}.conf"
+    section: "{{ item.1.section}}"
+    option: "{{ item.1.setting.keys()[0] }}"
+    value: '"{{ item.1.setting.values()[0] }}"'
+  with_subelements: 
+    - "{{ weechat_plugin_settings }}"
+    - settings
+
+- name: Setup IRC Servers
+  ini_file: 
+    path: "{{ irc_conf_path }}"
+    section: server
+    option: "{{ item.0.server_name }}.{{ item.1.keys()[0] }}"
+    value: '"{{ item.1.values()[0] }}"'
+  with_subelements: 
+    - "{{ weechat_irc_servers }}"
+    - settings

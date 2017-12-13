@@ -1,0 +1,15 @@
+---
+- name: Ensure COPR Dependencies are installed
+  dnf:
+    name: dnf-plugins-core
+    state: latest
+  become: true
+  when: copr_repos is not none
+
+- name: Install/Enable Corp Repositories
+  command: "dnf copr enable {{ item }} -y"
+  args:
+    creates: /etc/yum.repos.d/_copr_{{ item.split('/')[0] }}-{{ item.split('/')[1] }}.repo
+  with_items: "{{ copr_repos }}"
+  become: true
+  when: copr_repos is not none
