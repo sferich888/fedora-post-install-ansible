@@ -28,7 +28,7 @@
         - realname: "Eric Rich"
         - nicks: "sferich888"
         - autoconnect: on
-        - command: "/msg NickServ Identify wfang888"
+        - command: "/msg NickServ Identify NOPE"
         - autojoin: "#openshift"
 
     copr_repos: 
