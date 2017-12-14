@@ -1,0 +1,30 @@
+---
+- hosts: all 
+  - name: Make sure we have a 'wheel' group
+      group:
+        name: wheel
+        state: present
+    become: true
+    become_user: root
+    become_method: su
+  
+  - name: Allow 'wheel' group to have sudo
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^%wheel'
+      line: '%wheel  ALL=(ALL)       ALL'
+      validate: visudo -cf %s
+    become: true
+    become_user: root
+    become_method: su
+  
+  - name: Add {{ ansible_user_id }} to sudoers users via wheel group
+    user:
+      name: "{{ item }}"
+      groups: wheel
+      append: yes
+    with_items: "{{ ansible_user_id }}"
+    become: true
+    become_user: root
+    become_method: su
