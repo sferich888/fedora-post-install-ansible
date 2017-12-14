@@ -4,9 +4,9 @@
   tasks:
 
   - name: Make sure we have a 'wheel' group
-      group:
-        name: wheel
-        state: present
+    group:
+      name: wheel
+      state: present
     become: true
     become_user: root
     become_method: su
