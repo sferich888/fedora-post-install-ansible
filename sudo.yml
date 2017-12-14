@@ -1,4 +1,5 @@
 ---
+# from: https://stackoverflow.com/questions/33359404/ansible-best-practice-for-maintaining-list-of-sudoers 
 - hosts: all 
 
   tasks:
@@ -28,6 +29,17 @@
       groups: wheel
       append: yes
     with_items: "{{ ansible_user_id }}"
+    become: true
+    become_user: root
+    become_method: su
+
+  - name: Hold and WARN about system Reboot so that sudo settings can take effect!
+    pause:
+      minutes: .5
+      prompt: If you don't want to reboot, abort the playbook by press ctrl+c and then a
+
+  - name: Reboot so that sudo settings can take effect!
+    command: systemctl reboot
     become: true
     become_user: root
     become_method: su
