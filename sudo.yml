@@ -35,7 +35,7 @@
 
   - name: Hold and WARN about system Reboot so that sudo settings can take effect!
     pause:
-      minutes: .5
+      minutes: 1
       prompt: If you don't want to reboot, abort the playbook by press ctrl+c and then a
 
   - name: Reboot so that sudo settings can take effect!
