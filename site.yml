@@ -6,11 +6,19 @@
       - section: bar
         settings:
             - status.items: "[time],buffer_number+: +buffer_name,[lag],competion,scroll"
+      - section: plugin 
+        settings:
+            - autoload: "*,!lua,!tcl,!ruby,!fifo,!xfer,!guile,!javascript"
 
-    weechat_irc_settings:   # irc.conf
+    weechat_irc_settings:     # irc.conf
       - section: look
         settings: 
           - server_buffer: independent                  # default (merge_with_core) 
+
+    weechat_trigger_settings: # trigger.conf
+      - section: trigger
+        settings: 
+          - beep.command: "/print -beep"                # default
 
     weechat_plugin_settings:  # {default} plugin.conf 
       - plugin: buflist
@@ -32,18 +40,18 @@
         - autojoin: "#openshift"
 
     copr_repos: 
-#    - mcepl/vscode
-#    - ivoarch/gnome-shell-extension-tilix-dropdown
-#    - rmonk/signal
+    #- mcepl/vscode
+    #- ivoarch/gnome-shell-extension-tilix-dropdown
+    #- rmonk/signal
 
     packages: 
     - vim
+    - tilix
     - git
     - weechat 
-#    - vscode     ## Uses mcepl/vscode (copr repo) 
-
+    #- vscode     ## Uses mcepl/vscode (copr repo) 
 
   roles:
-  - role: corp_repos
+  #- role: corp_repos
   - role: packages
   - role: weechat
