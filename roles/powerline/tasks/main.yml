@@ -1,0 +1,45 @@
+--- 
+- set_fact:
+    vimrc_location: "{{ ansible_env.HOME }}/.vimrc"
+- set_fact:
+    bashrc_location: "{{ ansible_env.HOME }}/.bashrc"
+- set_fact:
+    powerline_config_location: "{{ ansible_env.HOME }}/.config/powerline/config.json"
+
+- name: Create local_user Powerline config
+  block:
+    - name: Create powerlin config directory
+      file:
+        path: "{{ powerline_config_location | dirname }}"
+        state: directory
+        mode: 0775 
+
+    - name: Write Custom config to {{ powerline_config_location }}
+      template:
+        src: config.json.j2
+        dest: "{{ powerline_config_location }}"
+
+- name: Configure bash to use Powerline
+  blockinfile:
+    path: "{{ bashrc_location }}"
+    marker: "### ANIBLE INSTALLED POWERLINE ###"
+    content: |
+      if [ -f `which powerline-daemon` ]; then
+        powerline-daemon -q
+        POWERLINE_BASH_CONTINUATION=1
+        POWERLINE_BASH_SELECT=1
+        . /usr/share/powerline/bash/powerline.sh
+      fi
+
+- name: Configure vim to use Powerline
+  blockinfile:
+    path: "{{ vimrc_location }}"
+    marker: "### ANIBLE INSTALLED POWERLINE ###"
+    content: |
+      python3 from powerline.vim import setup as powerline_setup
+      python3 powerline_setup()
+      python3 del powerline_setup
+      set laststatus=2 " Always display the statusline in all windows
+      set showtabline=2 " Always display the tabline, even if there is only one tab
+      set noshowmode " Hide the default mode text (e.g. -- INSERT -- below the statusline)
+      set t_Co=256

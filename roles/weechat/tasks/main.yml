@@ -10,20 +10,38 @@
 - name: Configure Weechat
   block: 
 
+    - set_fact:
+        base_location: "{{ ansible_env.HOME }}/.weechat"
     - set_fact: 
-        irc_client_conf_path: "{{ ansible_env.HOME }}/.weechat/wechat.conf" 
+        irc_client_conf_path: "{{ ansible_env.HOME }}/.weechat/weechat.conf" 
     - set_fact: 
         irc_conf_path: "{{ ansible_env.HOME }}/.weechat/irc.conf" 
     - set_fact: 
         irc_trigger_path: "{{ ansible_env.HOME }}/.weechat/trigger.conf" 
-    
-    - name: Set Default Local Hostname
-      ini_file: 
-        path: "{{ irc_conf_path }}"
-        section: server_default
-        option: local_hostname
-        value: "{{ ansible_nodename }}"
-    
+
+    - name: Start Weechat and Exit (setup dir structure)
+      command: "weechat -r '/exit/'"
+
+    - name: Weechat Dowload plugins
+      get_url:
+        url: "{{ item.1.url }}"
+        dest: "{{ base_location }}/{{ item.0.plugin_language }}/{{ item.1.url | urlsplit('path') | basename }}"
+      retries: 10
+      delay: 1
+      with_subelements: 
+        - "{{ weechat_plugins }}"
+        - plugins
+
+    - name: Configure Autoload of plugins
+      file:
+        src: "{{ base_location }}/{{ item.0.plugin_language }}/{{ item.1.url | urlsplit('path') | basename }}"
+        dest: "{{ base_location }}/{{ item.0.plugin_language }}/autoload/{{ item.1.url | urlsplit('path') | basename }}"
+        state: link
+      with_subelements: 
+        - "{{ weechat_plugins }}"
+        - plugins
+      when: item.1.autoload == True
+          
     - name: Set Weechat Client Config Settings
       ini_file: 
         path: "{{ irc_client_conf_path }}"
@@ -54,12 +72,22 @@
         - "{{ weechat_trigger_settings }}"
         - settings
     
-    - name: Set Weechat Plugin Settings
+    - name: Set Weechat Default Plugin Settings
       ini_file: 
-        path: "{{ ansible_env.HOME }}/.weechat/{{ item.0.plugin }}.conf"
+        path: "{{ base_location }}/{{ item.0.plugin }}.conf"
         section: "{{ item.1.section}}"
         option: "{{ item.1.setting.keys()[0] }}"
         value: '"{{ item.1.setting.values()[0] }}"'
+      with_subelements: 
+        - "{{ weechat_default_plugin_settings }}"
+        - settings
+
+    - name: Set Weechat Plugin Settings
+      ini_file: 
+        path: "{{ base_location }}/plugins.conf"
+        section: "{{ item.0.section}}"
+        option: "{{ item.0.language }}.{{ item.0.plugin }}.{{ item.1.keys()[0] }}"
+        value: '"{{ item.1.values()[0] }}"'
       with_subelements: 
         - "{{ weechat_plugin_settings }}"
         - settings

@@ -1,7 +1,19 @@
 ---
-- name: Install Packages
-  dnf:
-    name: "{{ item }}"
-    state: latest
+- name: Configure Extra Repositories
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    gpgcheck: "{{ item.gpgcheck | default(no) }}"
+    gpgkey: "{{ item.gpgkey | default() }}"
+    enabled: "{{ item.enabled | default(no) }}" 
+  with_items: "{{ extra_repos }}"
   become: true
+
+- name: Install Packages 
+  dnf:
+    name: "{{ item.package }}"
+    state: latest
+    enablerepo: "{{ item.repo | default() }}" 
   with_items: "{{ packages }}"
+  become: true

@@ -6,9 +6,16 @@
       - section: bar
         settings:
             - status.items: "[time],buffer_number+: +buffer_name,[lag],competion,scroll"
-      - section: plugin 
-        settings:
             - autoload: "*,!lua,!tcl,!ruby,!fifo,!xfer,!guile,!javascript"
+            - highmon.position: bottom
+            - highmon.items: "highmon"
+            - highmon.filling_top_bottom: "vertical"
+            - highmon.size: 0
+            - highmon.size_max: 5
+            - highmon.separator: on
+      - section: look
+        settings:
+            - highlight: "(?-i)*erich*,(?-i)*openshift*,(?-i)*docker*,(?-i)*kubernetes"
 
     weechat_irc_settings:     # irc.conf
       - section: look
@@ -18,14 +25,31 @@
     weechat_trigger_settings: # trigger.conf
       - section: trigger
         settings: 
-          - beep.command: "/print -beep"                # default
+          - beep.command: "/print -beep;/exec -bg notify-send -i '/usr/share/icons/hicolor/32x32/apps/weechat.png' ${tg_buffer} \"${tg_tag_nick}: ${tg_message_nocolor}\""
 
-    weechat_plugin_settings:  # {default} plugin.conf 
+    weechat_default_plugin_settings:                    # {plugin_name}.conf 
       - plugin: buflist
         settings:
           - section: format
             setting:
               number: ""
+
+    weechat_plugins:
+      - plugin_language: python
+        plugins:
+        - url: https://weechat.org/files/scripts/autosort.py
+          autoload: yes
+      - plugin_language: perl
+        plugins:
+        - url: https://weechat.org/files/scripts/highmon.pl
+          autoload: yes
+
+    weechat_plugin_settings:                           # plugin.conf 
+      - plugin: highmon
+        section: var
+        language: perl 
+        settings:
+          - output: bar
 
     weechat_irc_servers:
       - server_name: Freenode
@@ -40,18 +64,39 @@
         - autojoin: "#openshift"
 
     copr_repos: 
-    #- mcepl/vscode
-    #- ivoarch/gnome-shell-extension-tilix-dropdown
-    #- rmonk/signal
+    - rmonk/signal
+
+    extra_repos:
+    - name: "fedora-spotify-negativo17"
+      description: "negativo17 - Spotify"
+      baseurl: https://negativo17.org/repos/spotify/fedora-$releasever/$basearch/
+      enabled: no
+      gpgkey: https://negativo17.org/repos/RPM-GPG-KEY-slaanesh
+      gpgcheck: yes 
 
     packages: 
-    - vim
-    - tilix
-    - git
-    - weechat 
-    #- vscode     ## Uses mcepl/vscode (copr repo) 
+    - package: weechat
+    - package: git
+    - package: vim
+    - package: tilix
+    - package: tilix-nautilus
+    - package: http://frippery.org/files/fedora/27/frippery-utils/i386/gnome-shell-frippery-3.26.2-1.noarch.rpm
+    - package: gnome-shell-extension-panel-osd.noarch
+    - package: gnome-tweak-tool
+    - package: hub
+    - package: origin-clients
+    - package: jq
+    - package: https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+    - package: chrome-gnome-shell
+    - package: signal-desktop  ## Uses rmonk/signal (copr repo)
+    - package: spotify-client
+      repo: fedora-spotify-negativo17
+    - package: powerline 
+    - package: powerline-fonts
+    - package: vim-powerline
 
   roles:
-  #- role: corp_repos
+  - role: corp_repos
   - role: packages
   - role: weechat
+  - role: powerline
